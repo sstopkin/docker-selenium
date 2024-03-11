@@ -4,8 +4,8 @@
 #
 # To overwrite the build args use:
 #  docker build ... --build-arg UBUNTU_DATE=20171006
-ARG UBUNTU_FLAVOR=xenial
-ARG UBUNTU_DATE=20190904
+ARG UBUNTU_FLAVOR=focal
+ARG UBUNTU_DATE=20230308
 
 #== Ubuntu xenial is 16.04, i.e. FROM ubuntu:16.04
 # Find latest images at https://hub.docker.com/r/library/ubuntu/
@@ -23,8 +23,8 @@ ARG UBUNTU_DATE
 RUN printf "\033[1;32mFROM ubuntu:${UBUNTU_FLAVOR}-${UBUNTU_DATE} \033[0m\n"
 
 # https://github.com/docker/docker/pull/25466#discussion-diff-74622923R677
-LABEL maintainer "Diego Molina <diemol@gmail.com>"
-LABEL maintainer "Leo Gallucci <elgalu3+dosel@gmail.com>"
+LABEL maintainer = "Diego Molina <diemol@gmail.com>"
+LABEL maintainer = "Leo Gallucci <elgalu3+dosel@gmail.com>"
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -256,7 +256,7 @@ RUN cd /usr/local/bin \
 # 2017-10-21 commit: 3f04badc3237f0, supervisor/version.txt: 4.0.0.dev0
 # 2017-05-30 commit: 946d9cf3be4db3, supervisor/version.txt: 4.0.0.dev0
 ENV RUN_DIR="/var/run/sele"
-RUN SHA="837c159ae51f3bf12c1d30a8cb44f3450611983c" \
+RUN SHA="18b59a1403778766561ab49b18cf2558e8a4d227" \
   && pip install --no-cache \
       "https://github.com/Supervisor/supervisor/zipball/${SHA}" || \
      pip install --no-cache \
@@ -429,7 +429,7 @@ ENV FF_LANG="en-US" \
     FF_PLATFORM="linux-x86_64" \
     FF_INNER_PATH="firefox/releases"
 
-ARG FF_VER="88.0.1"
+ARG FF_VER="123.0.1"
 
 ENV FF_COMP="firefox-${FF_VER}.tar.bz2"
 ENV FF_URL="${FF_BASE_URL}/${FF_INNER_PATH}/${FF_VER}/${FF_PLATFORM}/${FF_LANG}/${FF_COMP}"
@@ -447,7 +447,7 @@ LABEL selenium_firefox_version "${FF_VER}"
 #============
 # GeckoDriver
 #============
-ARG GECKOD_VER="0.29.1"
+ARG GECKOD_VER="0.34.0"
 ENV GECKOD_URL="https://github.com/mozilla/geckodriver/releases/download"
 RUN wget --no-verbose -O geckodriver.tar.gz \
      "${GECKOD_URL}/v${GECKOD_VER}/geckodriver-v${GECKOD_VER}-linux64.tar.gz" \
@@ -466,7 +466,7 @@ COPY bin/fail /usr/bin/
 #===============
 # TODO: Use Google fingerprint to verify downloads
 #  https://www.google.de/linuxrepositories/
-ARG EXPECTED_CHROME_VERSION="91.0.4472.77"
+ARG EXPECTED_CHROME_VERSION="122.0.6261.111"
 ENV CHROME_URL="https://dl.google.com/linux/direct" \
     CHROME_BASE_DEB_PATH="/home/seluser/chrome-deb/google-chrome" \
     GREP_ONLY_NUMS_VER="[0-9.]{2,20}"
@@ -508,15 +508,16 @@ USER seluser
 # Chrome webdriver
 #==================
 # How to get cpu arch dynamically: $(lscpu | grep Architecture | sed "s/^.*_//")
-ARG CHROME_DRIVER_VERSION="91.0.4472.19"
-ENV CHROME_DRIVER_BASE="chromedriver.storage.googleapis.com" \
+ARG CHROME_DRIVER_VERSION="122.0.6261.94"
+ENV CHROME_DRIVER_BASE="storage.googleapis.com" \
     CPU_ARCH="64"
-ENV CHROME_DRIVER_FILE="chromedriver_linux${CPU_ARCH}.zip"
-ENV CHROME_DRIVER_URL="https://${CHROME_DRIVER_BASE}/${CHROME_DRIVER_VERSION}/${CHROME_DRIVER_FILE}"
+ENV CHROME_DRIVER_FILE="chromedriver-linux${CPU_ARCH}.zip"
+ENV CHROME_DRIVER_URL="https://${CHROME_DRIVER_BASE}/chrome-for-testing-public/${CHROME_DRIVER_VERSION}/linux${CPU_ARCH}/${CHROME_DRIVER_FILE}"
 # Gets latest chrome driver version. Or you can hard-code it, e.g. 2.15
-RUN  wget -nv -O chromedriver_linux${CPU_ARCH}.zip ${CHROME_DRIVER_URL} \
-  && unzip chromedriver_linux${CPU_ARCH}.zip \
-  && rm chromedriver_linux${CPU_ARCH}.zip \
+RUN  wget -nv -O chromedriver-linux${CPU_ARCH}.zip ${CHROME_DRIVER_URL} \
+  && unzip chromedriver-linux${CPU_ARCH}.zip \
+  && rm chromedriver-linux${CPU_ARCH}.zip \
+  && mv chromedriver-linux${CPU_ARCH}/chromedriver . \
   && mv chromedriver \
         chromedriver-${CHROME_DRIVER_VERSION} \
   && chmod 755 chromedriver-${CHROME_DRIVER_VERSION} \
